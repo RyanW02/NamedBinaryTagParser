@@ -1,7 +1,8 @@
-
 # NamedBinaryTagParser  
 As the name suggets, NamedBinaryTagParser is an NBT parser, written in Go.
-It supports all tag types.
+
+It supports all tag types, as well as being able to intelligently detect and handle gzip & zlib compression
+(or no compression).
 
 # Getting Started  
 ## Simple
@@ -77,6 +78,14 @@ func example(reader io.Reader) {
 	}
 }
 ```
+
+## Tag IDs
+NamedBinaryTagParser's tag ID constants can be found
+[here](https://github.com/RyanW02/NamedBinaryTagParser/blob/master/nbt/tagid.go).
+
+## Tag types
+NamedBinaryTagParser's tag types can be found
+[here](https://github.com/RyanW02/NamedBinaryTagParser/blob/master/nbt/tags.go).
   
 # Testing  
 I have written a test based on [wiki.vg's bigtest.nbt](https://wiki.vg/NBT#bigtest.nbt). You can run the test with
