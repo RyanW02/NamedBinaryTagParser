@@ -6,20 +6,6 @@ import (
 	"testing"
 )
 
-type fieldTestData struct {
-	t         *testing.T
-	fieldName string
-	compound  nbt.TagCompound
-	tagType   nbt.TagId
-	tagValue  nbt.Tag
-}
-
-func doFieldTest(data fieldTestData) {
-	tag := data.compound[data.fieldName]
-	typeCheck(data.t, data.fieldName, tag, data.tagType)
-	valueCheck(data.t, data.fieldName, tag, data.tagValue)
-}
-
 func typeCheck(t *testing.T, name string, tag nbt.Tag, wanted nbt.TagId) {
 	if tag.Type() != wanted {
 		t.Errorf("%s type doesn't match. got: %d wanted: %d", name, tag.Type(), wanted)
@@ -39,6 +25,6 @@ func valueCheck(t *testing.T, name string, value interface{}, wanted interface{}
 	}
 
 	if !passed {
-		t.Errorf("%s value doesn't match. got: %d wanted: %d", name, value, wanted)
+		t.Errorf("%v value doesn't match. got: %v wanted: %v", name, value, wanted)
 	}
 }

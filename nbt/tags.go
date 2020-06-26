@@ -2,6 +2,7 @@ package nbt
 
 type Tag interface {
 	Type() TagId
+	write(*Writer) error
 }
 
 type TagEnd struct{}

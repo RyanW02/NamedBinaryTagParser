@@ -9,12 +9,12 @@ import (
 )
 
 type Parser struct {
-	reader          io.Reader
+	reader *bufio.Reader
 }
 
 func NewParser(reader io.Reader) *Parser {
 	return &Parser{
-		reader: reader,
+		reader: bufio.NewReader(reader),
 	}
 }
 
@@ -63,7 +63,7 @@ func (p *Parser) Read() (tag TagCompound, outerName string, err error) {
 	return
 }
 
-func (p *Parser) getCompressionType() (CompressionType, error) {
+func (p Parser) getCompressionType() (CompressionType, error) {
 	// convert to bufio reader so we can peak
 	bytes, err := bufio.NewReader(p.reader).Peek(1)
 	if err != nil {
@@ -83,15 +83,18 @@ func (p *Parser) getCompressionType() (CompressionType, error) {
 
 func (p *Parser) swapReader(compressionType CompressionType) (err error) {
 	var reader io.Reader
+	var shouldSwap bool
 
 	switch compressionType {
 	case Gzip:
+		shouldSwap = true
 		reader, err = gzip.NewReader(p.reader)
 	case Zlib:
+		shouldSwap = true
 		reader, err = zlib.NewReader(p.reader)
 	}
 
-	if reader != nil {
+	if shouldSwap {
 		p.reader = bufio.NewReader(reader)
 	}
 
