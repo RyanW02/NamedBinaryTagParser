@@ -114,7 +114,7 @@ func example(r io.Reader) {
 <details>
     <summary>JSON output</summary>
     
-    ```json
+    ```javascript
     {
     	"Level": {
     		"byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))": "",
