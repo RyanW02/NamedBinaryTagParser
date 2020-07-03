@@ -17,7 +17,11 @@ func TestWrite(t *testing.T) {
 	}
 
 	// decode data
-	parser := nbt.NewParser(&buf)
+	parser, err := nbt.NewParser(&buf)
+	if err != nil {
+		t.Errorf("error creating parser: %v", err)
+	}
+
 	decoded, decodedName, err := parser.Read()
 	if err != nil {
 		t.Fatalf("failed deconding test data: %v", err)

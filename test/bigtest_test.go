@@ -13,7 +13,11 @@ func TestParse(t *testing.T) {
 		t.Errorf("failed to open bigtest.nbt: %v", err)
 	}
 
-	p := nbt.NewParser(f)
+	p, err := nbt.NewParser(f)
+	if err != nil {
+		t.Errorf("error creating parser: %v", err)
+	}
+
 	compound, name, err := p.Read()
 	if err != nil {
 		t.Errorf("error parsing bigtest.nbt: %v", err)
@@ -53,7 +57,10 @@ func BenchmarkParse(b *testing.B) {
 		b.StopTimer()
 
 		reader := bytes.NewReader(data)
-		p := nbt.NewParser(reader)
+		p, err := nbt.NewParser(reader)
+		if err != nil {
+			b.Errorf("error creating parser: %v", err)
+		}
 
 		b.StartTimer()
 

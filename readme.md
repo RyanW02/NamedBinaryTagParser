@@ -19,7 +19,10 @@ NamedBinaryTagParser's tag types can be found
 func example(reader io.Reader) {
 	// create our parser instance
 	// takes an io.Reader
-	parser := nbt.NewParser(reader)
+	parser, err := nbt.NewParser(reader)
+	if err != nil {
+		panic(err)
+	}
 
 	// the Parser.Read() function will completely parse the NBT compound provided from the reader
 	// it returns the parsed NBT compound, which is a type alias of map[string]nbt.Tag,
@@ -47,7 +50,10 @@ func example(reader io.Reader) {
 ```go
 func example(reader io.Reader) {
 	// create our parser instance
-	parser := nbt.NewParser(reader)
+	parser, err := nbt.NewParser(reader)
+	if err != nil {
+		panic(err)
+	}
 
 	// read the NBT compound
 	compound, name, err := parser.Read()
@@ -92,7 +98,11 @@ func example(reader io.Reader) {
 A small example in which we serialize an NBT compound to a JSON object.
 ```go
 func example(r io.Reader) {
-	parser := nbt.NewParser(r)
+	parser, err := nbt.NewParser(r)
+	if err != nil {
+		panic(err)
+	}
+
 	tag, name, err := parser.Read()
 	if err != nil {
 		panic(err)

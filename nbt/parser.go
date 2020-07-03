@@ -1,7 +1,7 @@
 package nbt
 
 import (
-	"bufio"
+	"bytes"
 	"compress/gzip"
 	"compress/zlib"
 	"errors"
@@ -9,28 +9,34 @@ import (
 )
 
 type Parser struct {
-	reader *bufio.Reader
+	reader io.Reader
 }
 
-func NewParser(reader io.Reader) *Parser {
-	return &Parser{
-		reader: bufio.NewReader(reader),
+func NewParser(reader io.Reader) (*Parser, error) {
+	var buf bytes.Buffer
+	_, err := buf.ReadFrom(reader)
+	if err != nil {
+		return nil, err
 	}
+
+	compressionType, err := getCompressionType(buf.Bytes()[0])
+	if err != nil {
+		return nil, err
+	}
+
+	compressionReader, err := getReader(&buf, compressionType)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Parser{
+		reader: compressionReader,
+	}, nil
 }
 
 var ErrNotCompound = errors.New("first tag must be a compound tag")
 
 func (p *Parser) Read() (tag TagCompound, outerName string, err error) {
-	var compressionType CompressionType
-	compressionType, err = p.getCompressionType()
-	if err != nil {
-		return
-	}
-
-	if err = p.swapReader(compressionType); err != nil {
-		return
-	}
-
 	// read first tag id
 	var tagId TagId
 	tagId, err = p.readTagId()
@@ -63,14 +69,7 @@ func (p *Parser) Read() (tag TagCompound, outerName string, err error) {
 	return
 }
 
-func (p Parser) getCompressionType() (CompressionType, error) {
-	// convert to bufio reader so we can peak
-	bytes, err := bufio.NewReader(p.reader).Peek(1)
-	if err != nil {
-		return Uncompressed, err
-	}
-
-	head := bytes[0]
+func getCompressionType(head byte) (CompressionType, error) {
 	switch head {
 	case 0x1f:
 		return Gzip, nil
@@ -81,22 +80,15 @@ func (p Parser) getCompressionType() (CompressionType, error) {
 	}
 }
 
-func (p *Parser) swapReader(compressionType CompressionType) (err error) {
-	var reader io.Reader
-	var shouldSwap bool
-
+func getReader(existing io.Reader, compressionType CompressionType) (reader io.Reader, err error) {
 	switch compressionType {
 	case Gzip:
-		shouldSwap = true
-		reader, err = gzip.NewReader(p.reader)
+		reader, err = gzip.NewReader(existing)
 	case Zlib:
-		shouldSwap = true
-		reader, err = zlib.NewReader(p.reader)
+		reader, err = zlib.NewReader(existing)
+	default:
+		return existing, nil
 	}
 
-	if shouldSwap {
-		p.reader = bufio.NewReader(reader)
-	}
-
-	return err
+	return
 }
