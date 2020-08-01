@@ -12,6 +12,12 @@ type Parser struct {
 	reader io.Reader
 }
 
+func NewRawParser(reader io.Reader) *Parser {
+	return &Parser{
+		reader: reader,
+	}
+}
+
 func NewParser(reader io.Reader) (*Parser, error) {
 	var buf bytes.Buffer
 	_, err := buf.ReadFrom(reader)
