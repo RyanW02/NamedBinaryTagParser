@@ -13,18 +13,18 @@ type Parser struct {
 }
 
 func NewParser(reader io.Reader) (*Parser, error) {
-	var buf bytes.Buffer
-	_, err := buf.ReadFrom(reader)
+	compressionTypeData := make([]byte, 1)
+	_, err := reader.Read(compressionTypeData)
+	if err != nil {
+		return nil, err
+	}
+	compressionType, err := getCompressionType(compressionTypeData[0])
 	if err != nil {
 		return nil, err
 	}
 
-	compressionType, err := getCompressionType(buf.Bytes()[0])
-	if err != nil {
-		return nil, err
-	}
-
-	compressionReader, err := getReader(&buf, compressionType)
+	multiReader := io.MultiReader(bytes.NewReader(compressionTypeData), reader)
+	compressionReader, err := getReader(multiReader, compressionType)
 	if err != nil {
 		return nil, err
 	}
